@@ -1,0 +1,40 @@
+Resources:
+  EC2ApacheInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0e6329e222e662a52
+      InstanceType: t2.micro
+      KeyName: cloudformationpem
+      Tags:
+        - Key: Env
+          Value: Dev
+        - Key: Name
+          Value: Apache Web Server
+      UserData: 
+        Fn::Base64: !Sub |
+            #!/bin/sh
+            yum update -y
+            yum install httpd.x86_64 -y
+            systemctl start httpd.service
+            systemctl enable httpd.service
+
+      SecurityGroups:
+        - !Ref ApacheSecurityGroup
+  ApacheSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "Apache Security Group"
+      GroupDescription: Apacche security Group
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          CidrIp: "0.0.0.0/0"
+          FromPort: '22'
+          ToPort: '22'
+        - IpProtocol: "tcp"
+          CidrIp: "0.0.0.0/0"
+          FromPort: '80'
+          ToPort: '80'
+        - IpProtocol: "tcp"
+          CidrIp: "0.0.0.0/0"
+          FromPort: '443'
+          ToPort: '443'
